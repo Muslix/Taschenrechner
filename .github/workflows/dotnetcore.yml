@@ -1,0 +1,45 @@
+name: .NET Core
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+stages:
+  - build
+  - test
+  - deploy
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: Build with dotnet
+      run: dotnet build --configuration Release
+      
+ test:
+  stage: test
+  script:
+    - dotnet test RechnerNeu -c Release
+  only:
+    - master
+    
+deploy:
+  stage: deploy
+  script:
+    - cat Taschenrechner/RechnerNeu/version
+    - echo "Deploy to staging"
+  environment:
+    name: production
+  when: manual
+  only:
+    - tags
+
